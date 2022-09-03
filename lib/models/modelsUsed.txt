@@ -1,0 +1,56 @@
+
+This explains the models used throughout the App
+
+ProductItem -> CartItem -> OrderItem
+
+ProductItem has the product details
+
+model + provider:
+class Product with ChangeNotifier {
+  final String id;
+  final String title;
+  final String description;
+  final double price;
+  final String imageUrl;
+  bool isFavorite;
+  }
+
+
+CartItem consists of a 'product' with its quantity
+
+model:
+  class CartItem {
+  final String id;
+  final String title;
+  final int quantity;
+  final double price;
+}
+
+Provider:
+map of productId (as string) and cartItem
+
+class Cart with ChangeNotifier {
+  Map<String, CartItem> _items = {};
+
+  Map<String, CartItem> get items {
+    return {..._items};
+  }
+
+
+OrderItem basically is just an object that has list of CartItems . When order is placed, 
+Cart's _items list gets added to Orders as an OrderItem and it gets cleared 
+
+
+class OrderItem {
+  final String id;
+  final double amount;
+  final List<CartItem> products;
+  final DateTime dateTime;
+}
+
+class Orders with ChangeNotifier {
+  List<OrderItem> _orders = [];
+
+  List<OrderItem> get orders {
+    return [..._orders];
+  }
