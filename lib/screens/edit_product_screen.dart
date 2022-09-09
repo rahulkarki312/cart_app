@@ -47,17 +47,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
     // selected productItem from the "Products" provider. Then set the _isInit to false
     // since the productItem has already been fetched the first time this widget got built
     if (_isInit) {
-      final productid = ModalRoute.of(context)!.settings.arguments as String;
+      final productid = ModalRoute.of(context)!.settings.arguments;
       if (productid != null) {
-        _editedProduct =
-            Provider.of<Products>(context, listen: false).findById(productid);
+        _editedProduct = Provider.of<Products>(context, listen: false)
+            .findById(productid as String);
         _initValues = {
           'title': _editedProduct.title,
           'description': _editedProduct.description,
           'price': _editedProduct.price.toString(),
           'imageUrl': ''
         };
-        _imageUrlController.text = _editedProduct.imageUrl.toString();
+        _imageUrlController.text = _editedProduct.imageUrl;
       }
     }
     _isInit = false;
@@ -90,10 +90,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return;
     }
     _form.currentState!.save();
-    if (_editedProduct.id == null) {
-      Provider.of<Products>(context).addProduct(_editedProduct);
+    if (_editedProduct.id == '') {
+      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
     } else {
-      Provider.of<Products>(context)
+      Provider.of<Products>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
     }
 
@@ -152,7 +152,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       if (value!.isEmpty) {
                         return "Please enter a price";
                       }
-                      if (double.tryParse(value) == null) {
+                      if (double.tryParse(value) == '') {
                         return "Please enter a valid number";
                       }
                       if (double.parse(value) <= 0) {
@@ -186,6 +186,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       if (value.length < 10) {
                         return "The description is too short (<10)";
                       }
+                      // returning null means no error in validation and the opposite when string is returned
                       return null;
                     },
                     focusNode: _descriptionFocusNode,
@@ -215,11 +216,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           child: TextFormField(
                         onSaved: (value) {
                           _editedProduct = Product(
-                              title: value!,
+                              title: _editedProduct.title,
                               id: _editedProduct.id,
                               price: _editedProduct.price,
                               description: _editedProduct.description,
-                              imageUrl: value,
+                              imageUrl: value!,
                               isFavorite: _editedProduct.isFavorite);
                         },
                         validator: (value) {
