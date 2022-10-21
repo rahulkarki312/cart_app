@@ -23,28 +23,38 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => Auth()),
-        ChangeNotifierProvider(create: (_) => Products()),
-        ChangeNotifierProvider(create: (_) => Cart()),
-        ChangeNotifierProvider(create: (_) => Orders())
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            primaryColor: Colors.brown,
-            accentColor: Color.fromARGB(255, 108, 150, 61),
-            fontFamily: "Lato"),
-        title: " ",
-        home: AuthScreen(),
-        routes: {
-          ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
-          CartScreen.routeName: (context) => CartScreen(),
-          OrdersScreen.routeName: (context) => OrdersScreen(),
-          UserProductsScreen.routeName: (context) => UserProductsScreen(),
-          EditProductScreen.routeName: (context) => EditProductScreen()
-        },
-      ),
-    );
+        providers: [
+          ChangeNotifierProvider(create: (_) => Auth()),
+          ChangeNotifierProxyProvider<Auth, Products>(
+              create: (_) => Products("", "", []),
+              update: (ctx, auth, previousProducts) => Products(
+                  auth.token.toString(),
+                  auth.userId.toString(),
+                  previousProducts == null ? [] : previousProducts.items)),
+          ChangeNotifierProvider(create: (_) => Cart()),
+          ChangeNotifierProxyProvider<Auth, Orders>(
+            create: (_) => Orders("", []),
+            update: (ctx, auth, previousOrders) => Orders(auth.token.toString(),
+                previousOrders == null ? [] : previousOrders.orders),
+          )
+        ],
+        child: Consumer<Auth>(
+          builder: (ctx, auth, _) => MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+                primaryColor: Colors.brown,
+                accentColor: Color.fromARGB(255, 108, 150, 61),
+                fontFamily: "Lato"),
+            title: " ",
+            home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+            routes: {
+              ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
+              CartScreen.routeName: (context) => CartScreen(),
+              OrdersScreen.routeName: (context) => OrdersScreen(),
+              UserProductsScreen.routeName: (context) => UserProductsScreen(),
+              EditProductScreen.routeName: (context) => EditProductScreen()
+            },
+          ),
+        ));
   }
 }

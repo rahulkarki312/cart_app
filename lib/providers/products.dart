@@ -6,6 +6,10 @@ import './product.dart';
 import '../models/http_exceptions.dart';
 
 class Products with ChangeNotifier {
+  final String authToken;
+  final String userId;
+  Products(this.authToken, this.userId, this._items);
+
   List<Product> _items = [
     // Product(
     //   id: 'p1',
@@ -85,8 +89,8 @@ class Products with ChangeNotifier {
   // }
 
   Future<void> fetchAndSetProducts() async {
-    final url = Uri.parse(
-        'https://my-project-e0439-default-rtdb.firebaseio.com/products.json');
+    var url = Uri.parse(
+        'https://my-project-e0439-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -94,13 +98,18 @@ class Products with ChangeNotifier {
       if (extractedData == null) {
         return;
       }
+      url = Uri.parse(
+          'https://my-project-e0439-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authToken');
+      final favoriteResponse = await http.get(url);
+      final favoriteData = json.decode(favoriteResponse.body);
       extractedData.forEach((prodId, prodData) {
         LoadedProducts.add(Product(
             id: prodId,
             description: prodData['description'],
             title: prodData['title'],
             price: prodData['price'],
-            isFavorite: prodData['isFavorite'],
+            isFavorite:
+                favoriteData == null ? false : favoriteData[prodId] ?? false,
             imageUrl: prodData['imageUrl']));
       });
       _items = LoadedProducts;
@@ -110,7 +119,7 @@ class Products with ChangeNotifier {
 
   Future<void> addProduct(Product product) async {
     final url = Uri.parse(
-        'https://my-project-e0439-default-rtdb.firebaseio.com/products.json');
+        'https://my-project-e0439-default-rtdb.firebaseio.com/products.json?auth=$authToken');
 
     try {
       final response = await http.post(
@@ -144,7 +153,7 @@ class Products with ChangeNotifier {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
     if (prodIndex >= 0) {
       final url = Uri.parse(
-          'https://my-project-e0439-default-rtdb.firebaseio.com/products/$id.json');
+          'https://my-project-e0439-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
       await http.patch(url,
           body: json.encode({
             'title': newProduct.title,
@@ -162,7 +171,7 @@ class Products with ChangeNotifier {
 
   Future<dynamic> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://my-project-e0439-default-rtdb.firebaseio.com/products/$id.json');
+        'https://my-project-e0439-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
     final existingProductIndex =
         _items.indexWhere((product) => product.id == id);
     var existingProduct = items[existingProductIndex];
