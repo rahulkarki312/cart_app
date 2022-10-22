@@ -61,36 +61,13 @@ class Products with ChangeNotifier {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
-  // Future<void> addProduct(Product product) {
-  //   final url = Uri.parse(
-  //       "https://my-project-e0439-default-rtdb.firebaseio.com/products");
-  //   return http
-  //       .post(url,
-  //           body: json.encode({
-  //             'title': product.title,
-  //             'description': product.description,
-  //             'imageUrl': product.imageUrl,
-  //             'price': product.price,
-  //             'isFavorite': product.isFavorite
-  //           }))
-  //       .then((response) {
-  //     final newProduct = Product(
-  //         id: json.decode(response.body)['name'],
-  //         title: product.title,
-  //         description: product.description,
-  //         price: product.price,
-  //         imageUrl: product.imageUrl);
-  //     _items.add(newProduct);
-  //     notifyListeners();
-  //   }).catchError((error) {
-  //     print(error);
-  //     throw error;
-  //   });
-  // }
-
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
     var url = Uri.parse(
-        'https://my-project-e0439-default-rtdb.firebaseio.com/products.json?auth=$authToken');
+        // to filter and fetch/set only products added by that user (Only for firebase backend). Filtered by the 'creatorId' key which is equal to the logged in 'userId
+        // for this to work, you must modify the rules on firebase console
+        'https://my-project-e0439-default-rtdb.firebaseio.com/products.json?auth=$authToken&$filterString');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -98,6 +75,7 @@ class Products with ChangeNotifier {
       if (extractedData == null) {
         return;
       }
+      // for favorites
       url = Uri.parse(
           'https://my-project-e0439-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authToken');
       final favoriteResponse = await http.get(url);
@@ -109,6 +87,7 @@ class Products with ChangeNotifier {
             title: prodData['title'],
             price: prodData['price'],
             isFavorite:
+                //false if the response is null or if favoriteData[prodId] is null , otherwise the given data
                 favoriteData == null ? false : favoriteData[prodId] ?? false,
             imageUrl: prodData['imageUrl']));
       });
@@ -129,7 +108,7 @@ class Products with ChangeNotifier {
           'description': product.description,
           'imageUrl': product.imageUrl,
           'price': product.price,
-          'isFavorite': product.isFavorite,
+          'creatorId': userId,
         }),
       );
 
@@ -188,17 +167,39 @@ class Products with ChangeNotifier {
   }
 }
 
+// void showFavoritesOnly() {
+//   _showFavoritesOnly = true;
+//   notifyListeners();
+// }
 
+// void showAll() {
+//   _showFavoritesOnly = false;
+//   notifyListeners();
 
-
-
-
- // void showFavoritesOnly() {
-  //   _showFavoritesOnly = true;
-  //   notifyListeners();
-  // }
-
-  // void showAll() {
-  //   _showFavoritesOnly = false;
-  //   notifyListeners();
-  // }
+// Future<void> addProduct(Product product) {
+//   final url = Uri.parse(
+//       "https://my-project-e0439-default-rtdb.firebaseio.com/products");
+//   return http
+//       .post(url,
+//           body: json.encode({
+//             'title': product.title,
+//             'description': product.description,
+//             'imageUrl': product.imageUrl,
+//             'price': product.price,
+//             'isFavorite': product.isFavorite
+//           }))
+//       .then((response) {
+//     final newProduct = Product(
+//         id: json.decode(response.body)['name'],
+//         title: product.title,
+//         description: product.description,
+//         price: product.price,
+//         imageUrl: product.imageUrl);
+//     _items.add(newProduct);
+//     notifyListeners();
+//   }).catchError((error) {
+//     print(error);
+//     throw error;
+//   });
+// }
+// }
