@@ -68,6 +68,7 @@ class Products with ChangeNotifier {
         // to filter and fetch/set only products added by that user (Only for firebase backend). Filtered by the 'creatorId' key which is equal to the logged in 'userId
         // for this to work, you must modify the rules on firebase console
         'https://my-project-e0439-default-rtdb.firebaseio.com/products.json?auth=$authToken&$filterString');
+    // 'https://my-project-e0439-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
