@@ -12,6 +12,7 @@ import './screens/user_products_screen.dart';
 import 'screens/edit_product_screen.dart';
 import 'screens/auth_screen.dart';
 import 'providers/auth.dart';
+import './screens/loading_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,8 +34,10 @@ class MyApp extends StatelessWidget {
                   previousProducts == null ? [] : previousProducts.items)),
           ChangeNotifierProvider(create: (_) => Cart()),
           ChangeNotifierProxyProvider<Auth, Orders>(
-            create: (_) => Orders("", []),
-            update: (ctx, auth, previousOrders) => Orders(auth.token.toString(),
+            create: (_) => Orders("", "", []),
+            update: (ctx, auth, previousOrders) => Orders(
+                auth.token.toString(),
+                auth.userId.toString(),
                 previousOrders == null ? [] : previousOrders.orders),
           )
         ],
@@ -46,7 +49,18 @@ class MyApp extends StatelessWidget {
                 accentColor: Color.fromARGB(255, 108, 150, 61),
                 fontFamily: "Lato"),
             title: " ",
-            home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+            home: auth.isAuth
+                ? ProductsOverviewScreen()
+                : FutureBuilder(
+                    future: auth.tryAutoLogin(),
+                    builder: (context, snapshot) =>
+                        snapshot.connectionState == ConnectionState.waiting
+                            ? LoadingScreen()
+                            : AuthScreen(),
+                    // here, if the tryAutoLogin is successful, the auth notifies listeners and
+                    //this whole consumer is rebuilt with auth.isAuth set to true and hence, ProductsOverviewScreen is shown
+                    // otherwise  in any case, the AuthScreen is shown
+                  ),
             routes: {
               ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
               CartScreen.routeName: (context) => CartScreen(),

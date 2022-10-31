@@ -7,12 +7,12 @@ import '../widgets/cart_item.dart';
 import '../providers/orders.dart';
 
 class OrderButton extends StatefulWidget {
+  final Cart cart;
+
   const OrderButton({
     Key? key,
     required this.cart,
   }) : super(key: key);
-
-  final Cart cart;
 
   @override
   State<OrderButton> createState() => _OrderButtonState();
