@@ -29,6 +29,38 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
+  // Future<void> fetchAndSetOrders() async {
+  //   final url = Uri.parse(
+  //       'https://my-project-e0439-default-rtdb.firebaseio.com/orders/$userId.json?auth=$authToken');
+  //   final response = await http.get(url);
+  //   final List<OrderItem> loadedOrders = [];
+  //   final extractedData = json.decode(response.body); //as Map<String, dynamic>
+  //   print(extractedData);
+
+  //   if (extractedData == null) {
+  //     return;
+  //   }
+  //   extractedData.forEach((orderId, orderData) {
+  //     loadedOrders.add(
+  //       OrderItem(
+  //         id: orderId,
+  //         amount: orderData['amount'] as double,
+  //         dateTime: DateTime.parse(orderData['dateTime']),
+  //         products: (orderData['products'] as List<dynamic>).map((item) {
+  //           return CartItem(
+  //             id: item['id'] as String,
+  //             price: item['price'] as double,
+  //             quantity: item['quantity'] as int,
+  //             title: item['title'] as String,
+  //           );
+  //         }).toList(),
+  //       ),
+  //     );
+  //   });
+  //   _orders = loadedOrders.reversed.toList();
+  //   notifyListeners();
+  // }
+
   Future<void> fetchAndSetOrders() async {
     final url = Uri.parse(
         'https://my-project-e0439-default-rtdb.firebaseio.com/orders/$userId.json?auth=$authToken');
@@ -48,7 +80,7 @@ class Orders with ChangeNotifier {
               .map(
                 (item) => CartItem(
                   id: item['id'],
-                  price: item['price'],
+                  price: double.parse(item['price'].toString()),
                   quantity: item['quantity'],
                   title: item['title'],
                 ),
