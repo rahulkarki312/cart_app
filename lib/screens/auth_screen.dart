@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth.dart';
@@ -22,16 +24,18 @@ class AuthScreen extends StatelessWidget {
         children: <Widget>[
           Container(
             decoration: BoxDecoration(
+              // color: Theme.of(context).primaryColor,
               gradient: LinearGradient(
-                colors: [
-                  Color.fromRGBO(215, 117, 255, 1).withOpacity(0.5),
-                  Color.fromRGBO(255, 188, 117, 1).withOpacity(0.9),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                stops: [0, 1],
-              ),
+                  colors: [
+                    Color.fromRGBO(255, 200, 55, 1), //rgba(255, 200, 55, 1)
+                    // Color.fromRGBO(255, 128, 8, 1) ,//rgba(255, 128, 8, 1)
+                    Theme.of(context).primaryColor
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  stops: [0, 0.5]),
             ),
+            // borderRadius: BorderRadius.circular(30)
           ),
           SingleChildScrollView(
             child: Container(
@@ -42,34 +46,34 @@ class AuthScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Flexible(
+                    flex: 0,
+                    fit: FlexFit.tight,
                     child: Container(
-                      margin: EdgeInsets.only(bottom: 20.0),
+                      height: MediaQuery.of(context).size.height * 0.10,
+                      margin:
+                          EdgeInsets.symmetric(vertical: 30.0, horizontal: 70),
                       padding:
-                          EdgeInsets.symmetric(vertical: 8.0, horizontal: 94.0),
-                      transform: Matrix4.rotationZ(-0 * pi / 180)
-                        ..translate(-10.0),
-                      // ..translate(-10.0),
+                          EdgeInsets.symmetric(vertical: 2.0, horizontal: 14.0),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.deepOrange.shade900,
+                        borderRadius: BorderRadius.circular(50),
+                        color: Theme.of(context).accentColor,
                         boxShadow: [
                           BoxShadow(
-                            blurRadius: 8,
+                            blurRadius: 6,
                             color: Colors.black26,
                             offset: Offset(0, 2),
                           )
                         ],
                       ),
-                      child: Text(
-                        'MyShop',
-                        style: TextStyle(
-                          color: Theme.of(context)
-                              .accentTextTheme
-                              .titleMedium!
-                              .color,
-                          fontSize: 50,
-                          fontFamily: 'Anton',
-                          fontWeight: FontWeight.normal,
+                      child: Center(
+                        child: Text(
+                          'Hamro Shop',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Anton',
+                            fontSize: 30,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       ),
                     ),
@@ -252,7 +256,7 @@ class _AuthCardState extends State<AuthCard> {
                     ),
                     padding:
                         EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).accentColor,
                     textColor: Theme.of(context).primaryTextTheme.button!.color,
                   ),
                 FlatButton(

@@ -133,6 +133,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).primaryColor,
         title: Text("Edit Product"),
         actions: [IconButton(onPressed: _saveForm, icon: Icon(Icons.save))],
       ),

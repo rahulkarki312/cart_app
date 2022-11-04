@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:shop_app/models/http_exceptions.dart';
 import '../models/http_exceptions.dart';
 
 class Auth with ChangeNotifier {
@@ -12,6 +11,7 @@ class Auth with ChangeNotifier {
   DateTime? _expiryDate;
   String? _userId;
   Timer? _authTimer;
+  String? _emailAddress;
 
   bool get isAuth {
     return token != null;
@@ -28,6 +28,13 @@ class Auth with ChangeNotifier {
 
   String? get userId {
     return _userId;
+  }
+
+  String? get emailAddress {
+    if (_token != null) {
+      return _emailAddress;
+    }
+    return "";
   }
 
   Future<void> _authenticate(
@@ -56,6 +63,7 @@ class Auth with ChangeNotifier {
       _userId = responseData['localId'];
       _expiryDate = DateTime.now()
           .add(Duration(seconds: int.parse(responseData['expiresIn'])));
+      _emailAddress = email;
       // print(_expiryDate);
       _autoLogout();
       notifyListeners();
@@ -66,7 +74,8 @@ class Auth with ChangeNotifier {
       final userData = json.encode({
         'token': _token,
         'userId': _userId,
-        'expiryDate': _expiryDate!.toIso8601String()
+        'expiryDate': _expiryDate!.toIso8601String(),
+        'email': email
       });
       prefs.setString('userData', userData);
     } catch (error) {
@@ -101,9 +110,11 @@ class Auth with ChangeNotifier {
     if (expiryDate.isBefore(DateTime.now())) {
       return false;
     }
+    _emailAddress = extractedUserData['email'].toString();
     _token = extractedUserData['token'].toString();
     _userId = extractedUserData['userId'].toString();
     _expiryDate = expiryDate;
+
     notifyListeners(); //this automatically rebuilds the home screen since the 'auth' provider's values has been changed/set
     _autoLogout();
     return true;

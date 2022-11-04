@@ -12,8 +12,9 @@ class AppDrawer extends StatelessWidget {
       child: Column(
         children: <Widget>[
           AppBar(
-            title: Text('Hello Friend!'),
+            title: Text('Namaste'),
             automaticallyImplyLeading: false,
+            backgroundColor: Theme.of(context).primaryColor,
           ),
           Divider(),
           ListTile(
@@ -51,6 +52,21 @@ class AppDrawer extends StatelessWidget {
               Provider.of<Auth>(context, listen: false).logout();
             },
           ),
+          Container(
+              margin: EdgeInsets.only(
+                      top: 50, left: MediaQuery.of(context).size.width) *
+                  0.5,
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.person,
+                  ),
+                  Consumer<Auth>(
+                    builder: (_, auth, child) =>
+                        Text(auth.emailAddress.toString()),
+                  ),
+                ],
+              ))
         ],
       ),
     );

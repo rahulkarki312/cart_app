@@ -23,6 +23,7 @@ class UserProductsScreen extends StatelessWidget {
     return Scaffold(
       drawer: AppDrawer(),
       appBar: AppBar(
+        backgroundColor: Theme.of(context).primaryColor,
         title: Text(" Edit Products"),
         actions: [
           IconButton(
@@ -30,11 +31,6 @@ class UserProductsScreen extends StatelessWidget {
                 Navigator.of(context).pushNamed(EditProductScreen.routeName);
               },
               icon: Icon(Icons.add)),
-          IconButton(
-              onPressed: () {
-                _refreshProducts(context);
-              },
-              icon: Icon(Icons.refresh))
         ],
       ),
       body: FutureBuilder(
