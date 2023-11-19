@@ -5,13 +5,15 @@ import '../providers/products.dart';
 import '../widgets/user_product_item.dart';
 import '../widgets/app_drawer.dart';
 import 'edit_product_screen.dart';
-import '../providers/products.dart';
 
 class UserProductsScreen extends StatelessWidget {
   static const routeName = '/user-products';
 
+  const UserProductsScreen({super.key});
+
   Future<void> _refreshProducts(BuildContext context) async {
     print("refreshed");
+    // only fetch the products added by that user who created the product
     await Provider.of<Products>(context, listen: false)
         .fetchAndSetProducts(true);
   }
@@ -19,33 +21,38 @@ class UserProductsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final productsData = Provider.of<Products>(context);
-    // TODO: implement build
+
     return Scaffold(
-      drawer: AppDrawer(),
+      drawer: const AppDrawer(),
       appBar: AppBar(
+        iconTheme:
+            IconThemeData(color: Theme.of(context).colorScheme.secondary),
         backgroundColor: Theme.of(context).primaryColor,
-        title: Text(" Edit Products"),
+        title: Text(" Edit Products",
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
         actions: [
           IconButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(EditProductScreen.routeName);
-              },
-              icon: Icon(Icons.add)),
+            onPressed: () {
+              Navigator.of(context).pushNamed(EditProductScreen.routeName);
+            },
+            icon: const Icon(Icons.add),
+          ),
         ],
       ),
       body: FutureBuilder(
         future: _refreshProducts(context),
         builder: (ctx, snapshot) =>
             snapshot.connectionState == ConnectionState.waiting
-                ? Center(
+                ? const Center(
                     child: CircularProgressIndicator(),
                   )
                 : RefreshIndicator(
                     onRefresh: () => _refreshProducts(context),
                     child: Consumer<Products>(
                       builder: (context, productsData, _) => Padding(
-                        padding: EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(8),
                         child: ListView.builder(
+                          itemCount: productsData.items.length,
                           itemBuilder: (_, i) {
                             return Column(
                               children: [
@@ -53,11 +60,10 @@ class UserProductsScreen extends StatelessWidget {
                                     productsData.items[i].id,
                                     productsData.items[i].title,
                                     productsData.items[i].imageUrl),
-                                Divider(),
+                                const Divider(),
                               ],
                             );
                           },
-                          itemCount: productsData.items.length,
                         ),
                       ),
                     ),

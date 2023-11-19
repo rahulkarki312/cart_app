@@ -79,7 +79,7 @@ class Auth with ChangeNotifier {
       });
       prefs.setString('userData', userData);
     } catch (error) {
-      throw (error);
+      rethrow;
     }
   }
 
@@ -100,7 +100,8 @@ class Auth with ChangeNotifier {
 
     final extractedUserData =
         json.decode(prefs.getString('userData')!); //as Map<String, Object>
-    print(extractedUserData.values.toString());
+    print(
+        extractedUserData.values.toString()); //to check the user's stored info
     // print(
     //     "token: $extractedUserData['token'], userId = $extractedUserData['userId'], expiryDate = $extractedUserData['expiryDate']");
     // check if the token has expired

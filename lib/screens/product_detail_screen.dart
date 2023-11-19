@@ -10,6 +10,8 @@ class ProductDetailScreen extends StatelessWidget {
   // ProductDetailScreen(this.title, this.price);
   static const routeName = '/product-detail';
 
+  const ProductDetailScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final productId =
@@ -20,7 +22,12 @@ class ProductDetailScreen extends StatelessWidget {
     ).findById(productId);
     return Scaffold(
       appBar: AppBar(
-        title: Text(loadedProduct.title),
+        iconTheme:
+            IconThemeData(color: Theme.of(context).colorScheme.secondary),
+        title: Text(
+          loadedProduct.title,
+          style: const TextStyle(color: Colors.black),
+        ),
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: SingleChildScrollView(
@@ -29,36 +36,39 @@ class ProductDetailScreen extends StatelessWidget {
             Stack(
               //image and title
               children: [
-                Container(
+                SizedBox(
                   height: MediaQuery.of(context).size.height * 0.6,
                   width: MediaQuery.of(context).size.width * 0.7,
-                  child: Image.network(
-                    loadedProduct.imageUrl,
-                    fit: BoxFit.contain,
+                  child: Hero(
+                    tag: loadedProduct.id,
+                    child: Image.network(
+                      loadedProduct.imageUrl,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
                 Positioned(
+                  left: 10,
+                  bottom: 20,
                   child: Text(
                     loadedProduct.title,
                   ),
-                  left: 10,
-                  bottom: 20,
                 )
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               'Rs.${loadedProduct.price}',
               style: TextStyle(
-                color: Theme.of(context).errorColor,
+                color: Theme.of(context).colorScheme.error,
                 fontSize: 20,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               width: double.infinity,
               child: Text(
                 loadedProduct.description,

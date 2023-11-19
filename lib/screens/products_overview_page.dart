@@ -14,6 +14,8 @@ enum FilterOptions {
 }
 
 class ProductsOverviewScreen extends StatefulWidget {
+  const ProductsOverviewScreen({super.key});
+
   @override
   _ProductsOverviewScreenState createState() => _ProductsOverviewScreenState();
 }
@@ -21,7 +23,7 @@ class ProductsOverviewScreen extends StatefulWidget {
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _showOnlyFavorites = false;
   var _isLoading = false;
-  var _isInit = true;
+  final _isInit = true;
 
   // @override
   // void didChangeDependencies() {
@@ -41,8 +43,10 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
     Provider.of<Products>(context, listen: false)
         .fetchAndSetProducts()
         .then((_) {
+      print("products fetched and set");
       setState(() => _isLoading = false);
     });
+    // print("products fetched and set");
     super.initState();
   }
 
@@ -50,8 +54,12 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.secondary),
         backgroundColor: Theme.of(context).primaryColor,
-        title: Text('Hamro Shop'),
+        title: Text(
+          'Hamro Shop',
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
         actions: <Widget>[
           PopupMenuButton(
             onSelected: (FilterOptions selectedValue) {
@@ -65,27 +73,29 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
             },
             icon: Icon(
               Icons.more_horiz,
-              size: 40,
+              color: Theme.of(context).colorScheme.secondary,
+              size: 30,
             ),
             itemBuilder: (_) => [
-              PopupMenuItem(
-                child: Text('Only Favorites'),
+              const PopupMenuItem(
                 value: FilterOptions.Favorites,
+                child: Text('Only Favorites'),
               ),
-              PopupMenuItem(
-                child: Text('Show All'),
+              const PopupMenuItem(
                 value: FilterOptions.All,
+                child: Text('Show All'),
               ),
             ],
           ),
           Consumer<Cart>(
-            builder: (_, cart, ch) => Badge(
-              child: ch as Widget,
+            builder: (_, cart, ch) => badge(
               value: cart.itemCount.toString(),
+              child: ch as Widget,
             ),
             child: IconButton(
               icon: Icon(
                 Icons.shopping_cart,
+                color: Theme.of(context).colorScheme.secondary,
                 size: 30,
               ),
               onPressed: () {
@@ -95,9 +105,9 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           ),
         ],
       ),
-      drawer: AppDrawer(),
+      drawer: const AppDrawer(),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ProductsGrid(_showOnlyFavorites),
     );
   }

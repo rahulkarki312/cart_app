@@ -4,8 +4,14 @@ import 'package:provider/provider.dart';
 import '../providers/product.dart';
 import '../providers/products.dart';
 
+// this block for gender selection part (radio buttons)
+
+enum Gender { Men, Women }
+
 class EditProductScreen extends StatefulWidget {
   static const routeName = '/edit-product';
+
+  const EditProductScreen({super.key});
   @override
   State<EditProductScreen> createState() => _EditProductScreenState();
 }
@@ -14,11 +20,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _priceFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
   final _imageUrlFocusNode = FocusNode();
+  final _discountFocusNode = FocusNode();
+  final _categoryFocusNode = FocusNode();
 
   final _imageUrlController = TextEditingController();
   final _form = GlobalKey<FormState>();
   var _isInit = true;
   var _isLoading = false;
+
   // if this screen is redirected from the "ADD" IconButton
   var _editedProduct = Product(
       id: '',
@@ -26,17 +35,25 @@ class _EditProductScreenState extends State<EditProductScreen> {
       price: 0,
       description: '',
       imageUrl: '',
-      isFavorite: false);
+      isFavorite: false,
+      isMan: true,
+      discount: 0,
+      category: '');
 
-  var _initValues = {
+  Map<String, dynamic> _initValues = {
     'title': '',
     'description': '',
     'price': '',
-    'imageUrl': ''
+    'imageUrl': '',
+    'isMan': true,
+    'discount': '',
+    'category': ''
   };
+  Gender? _selectedGender = Gender.Men;
 
   @override
   void initState() {
+    _selectedGender = _initValues['isMan'] == true ? Gender.Men : Gender.Women;
     _imageUrlFocusNode.addListener(_updateImageUrl);
     super.initState();
   }
@@ -67,11 +84,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
           'title': _editedProduct.title,
           'description': _editedProduct.description,
           'price': _editedProduct.price.toString(),
-          'imageUrl': ''
+          'imageUrl': '',
+          'isMan': _editedProduct.isMan,
+          'discount': _editedProduct.discount.toString(),
+          'category': _editedProduct.category
         };
         _imageUrlController.text = _editedProduct.imageUrl;
       }
     }
+
+    _selectedGender = _initValues['isMan'] == true ? Gender.Men : Gender.Women;
+
     _isInit = false;
     super.didChangeDependencies();
   }
@@ -99,25 +122,26 @@ class _EditProductScreenState extends State<EditProductScreen> {
     if (_editedProduct.id == '') {
       // adds product item
       try {
+        // _editedProduct.isMan = genderObject.sele
         await Provider.of<Products>(context, listen: false)
             .addProduct(_editedProduct);
       } catch (error) {
         await showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-                  title: Text("An error occured !"),
-                  content: Text("Something went wrong!"),
+                  title: const Text("An error occured !"),
+                  content: const Text("Something went wrong!"),
                   actions: [
-                    FlatButton(
+                    TextButton(
                         onPressed: () {
                           Navigator.of(ctx).pop();
                         },
-                        child: Text("Okay"))
+                        child: const Text("Okay"))
                   ],
                 ));
       }
     } else {
-      // edits rpoduct item
+      // edits product item
       await Provider.of<Products>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
     }
@@ -130,19 +154,25 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
+        iconTheme:
+            IconThemeData(color: Theme.of(context).colorScheme.secondary),
         backgroundColor: Theme.of(context).primaryColor,
-        title: Text("Edit Product"),
-        actions: [IconButton(onPressed: _saveForm, icon: Icon(Icons.save))],
+        title: Text(
+          "Edit Product",
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
+        actions: [
+          IconButton(onPressed: _saveForm, icon: const Icon(Icons.save))
+        ],
       ),
       body: _isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Form(
                   key: _form,
                   child: ListView(
@@ -156,7 +186,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
                               price: _editedProduct.price,
                               description: _editedProduct.description,
                               imageUrl: _editedProduct.imageUrl,
-                              isFavorite: _editedProduct.isFavorite);
+                              isFavorite: _editedProduct.isFavorite,
+                              isMan: _editedProduct.isMan,
+                              discount: _editedProduct.discount,
+                              category: _editedProduct.category);
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -164,7 +197,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           }
                           return null;
                         },
-                        decoration: InputDecoration(labelText: 'Title'),
+                        decoration: const InputDecoration(labelText: 'Title'),
                         textInputAction: TextInputAction.next,
                         onFieldSubmitted: (_) {
                           FocusScope.of(context).requestFocus(_priceFocusNode);
@@ -179,7 +212,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
                               price: double.parse(value!),
                               description: _editedProduct.description,
                               imageUrl: _editedProduct.imageUrl,
-                              isFavorite: _editedProduct.isFavorite);
+                              isFavorite: _editedProduct.isFavorite,
+                              isMan: _editedProduct.isMan,
+                              discount: _editedProduct.discount,
+                              category: _editedProduct.category);
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -191,9 +227,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           if (double.parse(value) <= 0) {
                             return "Price must be greater than zero";
                           }
+                          return null;
                         },
                         focusNode: _priceFocusNode,
-                        decoration: InputDecoration(labelText: 'Price'),
+                        decoration: const InputDecoration(labelText: 'Price'),
                         textInputAction: TextInputAction.next,
                         onFieldSubmitted: (_) {
                           FocusScope.of(context)
@@ -210,7 +247,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
                               price: _editedProduct.price,
                               description: value!,
                               imageUrl: _editedProduct.imageUrl,
-                              isFavorite: _editedProduct.isFavorite);
+                              isFavorite: _editedProduct.isFavorite,
+                              isMan: _editedProduct.isMan,
+                              discount: _editedProduct.discount,
+                              category: _editedProduct.category);
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -223,9 +263,129 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           return null;
                         },
                         focusNode: _descriptionFocusNode,
-                        decoration: InputDecoration(labelText: 'Description'),
+                        decoration:
+                            const InputDecoration(labelText: 'Description'),
                         maxLines: 3,
                         keyboardType: TextInputType.multiline,
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(context)
+                              .requestFocus(_discountFocusNode);
+                        },
+                      ),
+                      //discount
+                      TextFormField(
+                        initialValue: _initValues['discount'],
+                        onSaved: (value) {
+                          _editedProduct = Product(
+                              title: _editedProduct.title,
+                              id: _editedProduct.id,
+                              price: _editedProduct.price,
+                              description: _editedProduct.description,
+                              imageUrl: _editedProduct.imageUrl,
+                              isFavorite: _editedProduct.isFavorite,
+                              isMan: _editedProduct.isMan,
+                              discount: double.parse(value!),
+                              category: _editedProduct.category);
+                        },
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return "Please enter the discount, if there is none, enter 0";
+                          }
+                          // returning null means no error in validation and the opposite when string is returned
+                          return null;
+                        },
+                        focusNode: _discountFocusNode,
+                        decoration:
+                            const InputDecoration(labelText: 'Discount %'),
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(context)
+                              .requestFocus(_categoryFocusNode);
+                        },
+                        textInputAction: TextInputAction.next,
+                      ),
+                      //category
+                      TextFormField(
+                        initialValue: _initValues['category'],
+                        onSaved: (value) {
+                          _editedProduct = Product(
+                              title: _editedProduct.title,
+                              id: _editedProduct.id,
+                              price: _editedProduct.price,
+                              description: _editedProduct.description,
+                              imageUrl: _editedProduct.imageUrl,
+                              isFavorite: _editedProduct.isFavorite,
+                              isMan: _editedProduct.isMan,
+                              discount: _editedProduct.discount,
+                              category: value!);
+                        },
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return "Please enter the category of the product";
+                          }
+                          // returning null means no error in validation and the opposite when string is returned
+                          return null;
+                        },
+                        focusNode: _categoryFocusNode,
+                        decoration:
+                            const InputDecoration(labelText: 'Category'),
+                        textInputAction: TextInputAction.next,
+                      ),
+                      // Gender Selection
+                      Row(
+                        children: <Widget>[
+                          Container(
+                            constraints: const BoxConstraints(
+                                minWidth: 60, maxWidth: 160),
+                            child: ListTile(
+                              title: const Text('Men'),
+                              leading: Radio<Gender>(
+                                value: Gender.Men,
+                                groupValue: _selectedGender,
+                                onChanged: (Gender? value) {
+                                  _editedProduct = Product(
+                                      title: _editedProduct.title,
+                                      id: _editedProduct.id,
+                                      price: _editedProduct.price,
+                                      description: _editedProduct.description,
+                                      imageUrl: _editedProduct.imageUrl,
+                                      isFavorite: _editedProduct.isFavorite,
+                                      isMan: true,
+                                      discount: _editedProduct.discount,
+                                      category: _editedProduct.category);
+                                  setState(() {
+                                    _selectedGender = value;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          Container(
+                            constraints: const BoxConstraints(
+                                minWidth: 60, maxWidth: 160),
+                            child: ListTile(
+                              title: const Text('Women'),
+                              leading: Radio<Gender>(
+                                value: Gender.Women,
+                                groupValue: _selectedGender,
+                                onChanged: (Gender? value) {
+                                  _editedProduct = Product(
+                                      title: _editedProduct.title,
+                                      id: _editedProduct.id,
+                                      price: _editedProduct.price,
+                                      description: _editedProduct.description,
+                                      imageUrl: _editedProduct.imageUrl,
+                                      isFavorite: _editedProduct.isFavorite,
+                                      isMan: false,
+                                      discount: _editedProduct.discount,
+                                      category: _editedProduct.category);
+                                  setState(() {
+                                    _selectedGender = value;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -233,12 +393,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           Container(
                             height: 100,
                             width: 100,
-                            margin: EdgeInsets.only(top: 8, right: 10),
+                            margin: const EdgeInsets.only(top: 8, right: 10),
                             decoration: BoxDecoration(
                                 border:
                                     Border.all(width: 1, color: Colors.grey)),
                             child: _imageUrlController.text.isEmpty
-                                ? Text("Enter an Image URL")
+                                ? const Text("Enter an Image URL")
                                 : FittedBox(
                                     child: Image.network(
                                       _imageUrlController.text,
@@ -255,7 +415,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                   price: _editedProduct.price,
                                   description: _editedProduct.description,
                                   imageUrl: value!,
-                                  isFavorite: _editedProduct.isFavorite);
+                                  isFavorite: _editedProduct.isFavorite,
+                                  isMan: _editedProduct.isMan,
+                                  discount: _editedProduct.discount,
+                                  category: _editedProduct.category);
                             },
                             validator: (value) {
                               if (value!.isEmpty) {
@@ -270,7 +433,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             },
                             controller: _imageUrlController,
                             focusNode: _imageUrlFocusNode,
-                            decoration: InputDecoration(labelText: 'Image URL'),
+                            decoration:
+                                const InputDecoration(labelText: 'Image URL'),
                             keyboardType: TextInputType.url,
                             textInputAction: TextInputAction.done,
                             onFieldSubmitted: (_) => _saveForm,
@@ -279,7 +443,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             // },
                           )),
                         ],
-                      )
+                      ),
                     ],
                   ))),
     );

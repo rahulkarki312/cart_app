@@ -7,59 +7,31 @@ import './product_item.dart';
 class ProductsGrid extends StatelessWidget {
   final bool showFavs;
 
-  ProductsGrid(this.showFavs);
+  const ProductsGrid(this.showFavs, {super.key});
 
   @override
   Widget build(BuildContext context) {
     final productsData = Provider.of<Products>(context);
     final products = showFavs ? productsData.favoriteItems : productsData.items;
     final productsLength = products.length;
-    return Row(
-      children: [
-        Container(
-          width: MediaQuery.of(context).size.width * 0.5,
-          child: GridView.builder(
-            padding: const EdgeInsets.all(10.0),
-            itemCount: (products.length / 2).ceil(),
-            itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
-              value: products[i],
-              child: ProductItem(
-                  // products[i].id,
-                  // products[i].title,
-                  // products[i].imageUrl,
-                  ),
+    return GridView.builder(
+      padding: const EdgeInsets.all(10.0),
+      itemCount: products.length,
+      itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
+        // builder: (c) => products[i],
+        value: products[i],
+        child: const ProductItem(
+            // products[i].id,
+            // products[i].title,
+            // products[i].imageUrl,
             ),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              childAspectRatio: 2 / 2.5,
-              // crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-            ),
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.only(top: 40),
-          width: MediaQuery.of(context).size.width * 0.5,
-          child: GridView.builder(
-            padding: const EdgeInsets.all(10.0),
-            itemCount: (products.length / 2).floor(),
-            itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
-              value: products[i + (products.length / 2).ceil()],
-              child: ProductItem(
-                  // products[i].id,
-                  // products[i].title,
-                  // products[i].imageUrl,
-                  ),
-            ),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              childAspectRatio: 2 / 2.5,
-              // crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-            ),
-          ),
-        ),
-      ],
+      ),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 2 / 3.5,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+      ),
     );
   }
 }

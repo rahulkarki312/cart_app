@@ -1,17 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import './product.dart';
 import '../models/http_exceptions.dart';
 
-import 'dart:convert';
-
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
-import '../models/http_exceptions.dart';
-import './product.dart';
 
 class Products with ChangeNotifier {
   List<Product> _items = [
@@ -22,6 +16,7 @@ class Products with ChangeNotifier {
     //   price: 4900,
     //   imageUrl:
     //       'https://m.media-amazon.com/images/I/81iLkeTaqlS._AC_UL480_FMwebp_QL65_.jpg',
+    //    isMan: true
     // ),
     // Product(
     //   id: 'exProduct2',
@@ -30,6 +25,7 @@ class Products with ChangeNotifier {
     //   price: 1299,
     //   imageUrl:
     //       'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Trousers%2C_dress_%28AM_1960.022-8%29.jpg/512px-Trousers%2C_dress_%28AM_1960.022-8%29.jpg',
+    //     isMan: true
     // ),
   ];
   // var _showFavoritesOnly = false;
@@ -87,15 +83,19 @@ class Products with ChangeNotifier {
           title: prodData['title'],
           description: prodData['description'],
           price: prodData['price'],
+          // set the isFavorite to false if it is null or if the value is false otherwise, the value itself favoriteData[prodId]
           isFavorite:
               favoriteData == null ? false : favoriteData[prodId] ?? false,
           imageUrl: prodData['imageUrl'],
+          isMan: prodData['isMan'] ?? false,
+          discount: prodData['discount'] == null ? 0.0 : (prodData['discount']),
+          category: prodData['category'] ?? '',
         ));
       });
       _items = loadedProducts;
       notifyListeners();
     } catch (error) {
-      throw (error);
+      rethrow;
     }
   }
 
@@ -104,6 +104,7 @@ class Products with ChangeNotifier {
         'https://my-project-e0439-default-rtdb.firebaseio.com/products.json?auth=$authToken');
 
     try {
+      // adding to server
       final response = await http.post(
         url,
         body: json.encode({
@@ -112,21 +113,27 @@ class Products with ChangeNotifier {
           'imageUrl': product.imageUrl,
           'price': product.price,
           'creatorId': userId,
+          'isMan': product.isMan,
+          'discount': product.discount,
+          'category': product.category
         }),
       );
+      // adding  locally
       final newProduct = Product(
-        title: product.title,
-        description: product.description,
-        price: product.price,
-        imageUrl: product.imageUrl,
-        id: json.decode(response.body)['name'],
-      );
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          imageUrl: product.imageUrl,
+          id: json.decode(response.body)['name'],
+          isMan: product.isMan,
+          discount: product.discount,
+          category: product.category);
       _items.add(newProduct);
       // _items.insert(0, newProduct); // at the start of the list
       notifyListeners();
     } catch (error) {
       print(error);
-      throw error;
+      rethrow;
     }
   }
 
@@ -141,7 +148,10 @@ class Products with ChangeNotifier {
             'title': newProduct.title,
             'description': newProduct.description,
             'imageUrl': newProduct.imageUrl,
-            'price': newProduct.price
+            'price': newProduct.price,
+            'isMan': newProduct.isMan,
+            'discount': newProduct.discount,
+            'category': newProduct.category
           }));
       _items[prodIndex] = newProduct;
       notifyListeners();
@@ -158,7 +168,7 @@ class Products with ChangeNotifier {
     var existingProduct = items[existingProductIndex];
     _items.removeAt(existingProductIndex);
     notifyListeners();
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     final response = await http.delete(url);
 
     if (response.statusCode >= 400) {

@@ -22,7 +22,6 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => Auth()),
@@ -45,32 +44,33 @@ class MyApp extends StatelessWidget {
           builder: (ctx, auth, _) => MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
-                // green: rgba(42, 157, 143, 1)
-                // brown (light): rgba(233, 196, 106, 1)
-                //orange: rgba(244, 162, 97, 1)
-                primaryColor: Color.fromRGBO(244, 162, 97, 1), //orange
-                // accentColor: Color.fromRGBO(233, 196, 106, 1), // yellow
-                accentColor: Color.fromRGBO(42, 157, 143, 1), //green
-                fontFamily: "Lato"),
+                primaryColor: Colors.white,
+                // colorScheme: ColorScheme(brightness: Brightness.dark, primary: primary, onPrimary: onPrimary, secondary: secondary, onSecondary: onSecondary, error: error, onError: onError, background: background, onBackground: onBackground, surface: surface, onSurface: onSurface),
+                fontFamily: "Montserrat",
+                colorScheme:
+                    ColorScheme.fromSwatch().copyWith(secondary: Colors.black)),
             title: " ",
             home: auth.isAuth
-                ? ProductsOverviewScreen()
+                ? const ProductsOverviewScreen()
                 : FutureBuilder(
                     future: auth.tryAutoLogin(),
                     builder: (context, snapshot) =>
                         snapshot.connectionState == ConnectionState.waiting
-                            ? LoadingScreen()
-                            : AuthScreen(),
+                            ? const LoadingScreen()
+                            : const AuthScreen(),
                     // here, if the tryAutoLogin is successful, the auth notifies listeners and
                     //this whole consumer is rebuilt with auth.isAuth set to true and hence, ProductsOverviewScreen is shown
                     // otherwise  in any case, the AuthScreen is shown
                   ),
             routes: {
-              ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
-              CartScreen.routeName: (context) => CartScreen(),
-              OrdersScreen.routeName: (context) => OrdersScreen(),
-              UserProductsScreen.routeName: (context) => UserProductsScreen(),
-              EditProductScreen.routeName: (context) => EditProductScreen()
+              ProductDetailScreen.routeName: (context) =>
+                  const ProductDetailScreen(),
+              CartScreen.routeName: (context) => const CartScreen(),
+              OrdersScreen.routeName: (context) => const OrdersScreen(),
+              UserProductsScreen.routeName: (context) =>
+                  const UserProductsScreen(),
+              EditProductScreen.routeName: (context) =>
+                  const EditProductScreen(),
             },
           ),
         ));
